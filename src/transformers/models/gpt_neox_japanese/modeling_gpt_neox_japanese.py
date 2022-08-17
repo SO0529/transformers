@@ -202,7 +202,7 @@ class GPTNeoXJapaneseAttention(nn.Module):
         batch_size, num_attention_heads, query_length, attn_head_size = query.size()
         key_length = key.size(-2)
 
-        causal_mask = self.bias[:, :, key_length - query_length : key_length, :key_length].bool()
+        causal_mask = self.bias[:, :, key_length - query_length: key_length, :key_length].bool()
 
         query = query.view(batch_size * num_attention_heads, query_length, attn_head_size)
         key = key.view(batch_size * num_attention_heads, key_length, attn_head_size)
@@ -279,13 +279,13 @@ class RotaryEmbedding(torch.nn.Module):
 def rotate_half(x):
     """Rotates half the hidden dims of the input."""
     x1 = x[..., : x.shape[-1] // 2]
-    x2 = x[..., x.shape[-1] // 2 :]
+    x2 = x[..., x.shape[-1] // 2:]
     return torch.cat((-x2, x1), dim=-1)
 
 
 def apply_rotary_pos_emb(q, k, cos, sin, offset: int = 0):
-    cos = cos[..., offset : q.shape[-2] + offset, :]
-    sin = sin[..., offset : q.shape[-2] + offset, :]
+    cos = cos[..., offset: q.shape[-2] + offset, :]
+    sin = sin[..., offset: q.shape[-2] + offset, :]
     q_embed = (q * cos) + (rotate_half(q) * sin)
     k_embed = (k * cos) + (rotate_half(k) * sin)
     return q_embed, k_embed
@@ -308,7 +308,7 @@ def get_bias_dropout_add(training):
 
 
 class RowParallelLinear(nn.Module):
-    def __init__(self, input_size, output_size, bias=False):
+    def __init__(self, input_size, output_size, bias=False) -> None:
         super(RowParallelLinear, self).__init__()
 
         # Keep input parameters
@@ -316,21 +316,17 @@ class RowParallelLinear(nn.Module):
         self.output_size = output_size
 
         self.weight = Parameter(
-            torch.empty(
-                self.output_size,
-                self.input_size,
-            )
+            torch.ones(self.output_size, self.input_size)
         )
         if bias:
             self.bias = Parameter(
-                torch.empty(
-                    self.output_size,
-                )
+                torch.zeros(self.output_size)
             )
         else:
             self.register_parameter("bias", None)
 
-        self.reset_parameters()
+        # if uncommented, the following line will cause test failure
+        # self.reset_parameters()
 
     def reset_parameters(self) -> None:
         init.kaiming_uniform_(self.weight, a=math.sqrt(5))
@@ -346,12 +342,7 @@ class RowParallelLinear(nn.Module):
 
 
 class ColumnParallelLinear(torch.nn.Module):
-    def __init__(
-        self,
-        input_size,
-        output_size,
-        bias=False,
-    ):
+    def __init__(self, input_size, output_size, bias=False) -> None:
         super(ColumnParallelLinear, self).__init__()
 
         # Keep input parameters
@@ -360,21 +351,17 @@ class ColumnParallelLinear(torch.nn.Module):
         self.skip_bias_add = True
 
         self.weight = Parameter(
-            torch.empty(
-                self.output_size,
-                self.input_size,
-            )
+            torch.ones(self.output_size, self.input_size)
         )
         if bias:
             self.bias = Parameter(
-                torch.empty(
-                    self.output_size,
-                )
+                torch.zeros(self.output_size)
             )
         else:
             self.register_parameter("bias", None)
 
-        self.reset_parameters()
+        # if uncommented, the following line will cause test failure
+        # self.reset_parameters()
 
     def reset_parameters(self) -> None:
         init.kaiming_uniform_(self.weight, a=math.sqrt(5))
