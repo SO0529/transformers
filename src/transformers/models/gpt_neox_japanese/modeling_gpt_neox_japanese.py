@@ -92,14 +92,7 @@ class GPTNeoXJapaneseAttention(nn.Module):
         self.rotary_emb = RotaryEmbedding(
             self.rotary_ndims, config.max_position_embeddings, base=config.rotary_emb_base
         )
-        max_positions = config.max_position_embeddings
-        self.register_buffer(
-            "bias",
-            torch.tril(torch.ones((max_positions, max_positions), dtype=torch.uint8)).view(
-                1, 1, max_positions, max_positions
-            ),
-        )
-        self.register_buffer("masked_bias", torch.tensor(-1e9))
+        self.max_positions = config.max_position_embeddings
         self.attention_dropout = nn.Dropout(config.attention_dropout)
         self.norm_factor = torch.sqrt(torch.tensor(self.head_size, dtype=torch.float32)).to(torch.get_default_dtype())
         self.query_key_value = ColumnParallelLinear(
@@ -196,13 +189,21 @@ class GPTNeoXJapaneseAttention(nn.Module):
         # -> [bs, seq_len, hidden_size]
         return tensor
 
+    def _create_casual_mask(self, key_length, query_length):
+        casual_mask = torch.tril(
+            torch.ones((self.max_positions, self.max_positions), dtype=torch.uint8).view(
+                1, 1, self.max_positions, self.max_positions
+            )
+        )
+        return casual_mask[:, :, key_length - query_length: key_length, :key_length].bool()
+
     def _attn(self, query, key, value, attention_mask=None, head_mask=None):
         # q, k, v: [bs, num_attention_heads, seq_len, attn_head_size]
         # compute causal mask from causal mask buffer
         batch_size, num_attention_heads, query_length, attn_head_size = query.size()
         key_length = key.size(-2)
 
-        causal_mask = self.bias[:, :, key_length - query_length: key_length, :key_length].bool()
+        causal_mask = self._create_casual_mask(key_length, query_length)
 
         query = query.view(batch_size * num_attention_heads, query_length, attn_head_size)
         key = key.view(batch_size * num_attention_heads, key_length, attn_head_size)
