@@ -30,19 +30,19 @@ if TYPE_CHECKING:
 
 logger = logging.get_logger(__name__)
 
-VOCAB_FILES_NAMES = {"vocab_file": "vocab.text", "emoji_file": "emoji.json"}
+VOCAB_FILES_NAMES = {"vocab_file": "vocab.txt", "emoji_file": "emoji.json"}
 
 PRETRAINED_VOCAB_FILES_MAP = {
     "vocab_file": {
-        "ABEJA/gpt-neox-japanese": "vocab.txt",
+        "abeja/gpt-neox-japanese": "vocab.txt",
     },
     "emoji_file": {
-        "ABEJA/gpt-neox-japanese": "emoji.json",
+        "abeja/gpt-neox-japanese": "emoji.json",
     }
 }
 
 PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
-    "gpt-neox-japanese": 2048,
+    "abeja/gpt-neox-japanese": 2048,
 }
 
 
@@ -78,7 +78,7 @@ class GPTNeoXJapaneseTokenizer(PreTrainedTokenizer):
     '吾 輩 は 猫 であ る'
     ```
 
-    Args:
+    Args: TODO: check args
         vocab_file (`str`):
             File containing the vocabulary.
         emoji_file (`str`):
@@ -105,19 +105,21 @@ class GPTNeoXJapaneseTokenizer(PreTrainedTokenizer):
         self,
         vocab_file=None,
         emoji_file=None,
-        do_clean_text=False,
         unk_token="<|endoftext|>",
         pad_token="<|endoftext|>",
-        bos_token="<|endoftext|>",
+        bos_token="<|startoftext|>",
         eos_token="<|endoftext|>",
+        do_clean_text=False,
+        add_prefix_space=False,
         **kwargs
     ):
         super().__init__(
-            do_clean_text=do_clean_text,
             unk_token=unk_token,
             pad_token=pad_token,
             bos_token=bos_token,
             eos_token=eos_token,
+            do_clean_text=do_clean_text,
+            add_prefix_space=add_prefix_space,
             **kwargs,
         )
         if not os.path.isfile(vocab_file):
@@ -125,7 +127,13 @@ class GPTNeoXJapaneseTokenizer(PreTrainedTokenizer):
                 f"Can't find a vocabulary file at path '{vocab_file}'. To load the vocabulary from a Google pretrained"
                 " model use `tokenizer = GPTNeoXJapaneseokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
             )
+        if not os.path.isfile(emoji_file):
+            raise ValueError(
+                f"Can't find a emoji file at path '{emoji_file}'. To load the emoji information from a Google pretrained"
+                " model use `tokenizer = GPTNeoXJapaneseokenizer.from_pretrained(PRETRAINED_MODEL_NAME)`"
+            )
         self.do_clean_text = do_clean_text
+        self.add_prefix_space = add_prefix_space
         self.vocab, self.ids_to_tokens, self.emoji = load_vocab_and_emoji(vocab_file, emoji_file)
         self.subword_tokenizer = SubWordJapaneseTokenizer(
             vocab=self.vocab, ids_to_tokens=self.ids_to_tokens, emoji=self.emoji

@@ -29,7 +29,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["tokenization_gpt_neox_japanese_fast"] = ["GPTNeoXJapaneseTokenizerFast"]
+    _import_structure["tokenization_gpt_neox_japanese"] = ["GPTNeoXJapaneseTokenizer"]
 
 try:
     if not is_torch_available():
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .tokenization_gpt_neox_japanese_fast import GPTNeoXJapaneseTokenizerFast
+        from .tokenization_gpt_neox_japanese import GPTNeoXJapaneseTokenizer
 
     try:
         if not is_torch_available():
@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_gpt_neox import (
+        from .modeling_gpt_neox_japanese import (
             GPT_NEOX_JAPANESE_PRETRAINED_MODEL_ARCHIVE_LIST,
             GPTNeoXJapaneseForCausalLM,
             GPTNeoXJapaneseLayer,

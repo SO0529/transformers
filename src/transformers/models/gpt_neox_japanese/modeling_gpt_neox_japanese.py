@@ -43,7 +43,7 @@ logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "gpt-neox-japanese-2_7b"
 _CONFIG_FOR_DOC = "GPTNeoXJapaneseConfig"
-_TOKENIZER_FOR_DOC = "GPTNeoXJapaneseTokenizerFast"
+_TOKENIZER_FOR_DOC = "GPTNeoXJapaneseTokenizer"
 
 GPT_NEOX_JAPANESE_PRETRAINED_MODEL_ARCHIVE_LIST = {
     "ABEJA/gpt-neox-japanese-2_7b",
