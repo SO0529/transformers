@@ -41,13 +41,14 @@ from .configuration_gpt_neox_japanese import GPTNeoXJapaneseConfig
 
 logger = logging.get_logger(__name__)
 
-_CHECKPOINT_FOR_DOC = "gpt-neox-japanese-2_7b"
+_CHECKPOINT_FOR_DOC = "gpt-neox-japanese-2.7b"
 _CONFIG_FOR_DOC = "GPTNeoXJapaneseConfig"
 _TOKENIZER_FOR_DOC = "GPTNeoXJapaneseTokenizer"
 
 GPT_NEOX_JAPANESE_PRETRAINED_MODEL_ARCHIVE_LIST = {
-    "ABEJA/gpt-neox-japanese-2_7b",
-    "ABEJA/gpt-neox-japanese-6_7b",
+    "abeja/gpt-neox-japanese-2.7b",
+    "abeja/gpt-neox-japanese-6.7b",
+    "abeja/gpt-neox-japanese-13b",
 }
 
 
@@ -247,7 +248,7 @@ class GPTNeoXJapaneseAttention(nn.Module):
 
 class RotaryEmbedding(torch.nn.Module):
     """
-    same class as origin gpt-neox
+    same class as original gpt-neox
     """
     def __init__(self, dim, max_position_embeddings, base=10000, device=None):
         super().__init__()
@@ -471,7 +472,7 @@ GPT_NEOX_JAPANESE_START_DOCSTRING = r"""
     behavior.
 
     Parameters:
-        config ([`~GPTNeoXConfig`]): Model configuration class with all the parameters of the model.
+        config ([`~GPTNeoXJapaneseConfig`]): Model configuration class with all the parameters of the model.
             Initializing with a config file does not load the weights associated with the model, only the
             configuration. Check out the [`~PreTrainedModel.from_pretrained`] method to load the model weights.
 """
@@ -500,7 +501,6 @@ GPT_NEOX_JAPANESE_INPUTS_DOCSTRING = r"""
             Indices of positions of each input sequence tokens in the position embeddings. Selected in the range `[0,
             config.max_position_embeddings - 1]`.
 
-            [What are position IDs?](../glossary#position-ids)
         head_mask (`torch.FloatTensor` of shape `(num_heads,)` or `(num_layers, num_heads)`, *optional*):
             Mask to nullify selected heads of the self-attention modules. Mask values selected in `[0, 1]`:
 
@@ -727,19 +727,20 @@ class GPTNeoXJapaneseForCausalLM(GPTNeoXJapanesePreTrainedModel):
         Example:
 
         ```python
-        >>> from transformers import GPTNeoXTokenizer, GPTNeoXForCausalLM, GPTNeoXConfig
+        >>> from transformers import GPTNeoXJapaneseTokenizer, GPTNeoXJapaneseForCausalLM, GPTNeoXJapaneseConfig
         >>> import torch
 
-        >>> tokenizer = GPTNeoXTokenizer.from_pretrained("gpt-neox-20b")
-        >>> config = GPTNeoXConfig.from_pretrained("gpt-neox-20b")
+        >>> tokenizer = GPTNeoXJapaneseTokenizer.from_pretrained("abeja/gpt-neox-japanese-2.7b")
+        >>> config = GPTNeoXJapaneseConfig.from_pretrained("abeja/gpt-neox-japanese-2.7b")
         >>> config.is_decoder = True
-        >>> model = GPTNeoXForCausalLM.from_pretrained("gpt-neox-20b", config=config)
+        >>> model = GPTNeoXJapaneseForCausalLM.from_pretrained("abeja/gpt-neox-japanese-2.7b", config=config)
 
-        >>> inputs = tokenizer("Hello, my dog is cute", return_tensors="pt")
+        >>> inputs = tokenizer("日本語のGPT-neoxがHugging Faceで使えます😀", return_tensors="pt")
         >>> outputs = model(**inputs)
 
         >>> prediction_logits = outputs.logits
-        ```"""
+        ```
+        """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.gpt_neox_japanese(

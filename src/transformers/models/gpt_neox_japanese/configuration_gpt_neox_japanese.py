@@ -21,8 +21,9 @@ from ...utils import logging
 logger = logging.get_logger(__name__)
 
 GPT_NEOX_JAPANESE_PRETRAINED_CONFIG_ARCHIVE_MAP = {
-    "ABEJA/gpt-neox-japanese-2_7b": "https://huggingface.co/abeja-inc/XXX",
-    "ABEJA/gpt-neox-japanese-6_7b": "https://huggingface.co/abeja-inc/XXX",
+    "abeja/gpt-neox-japanese-2_7b": "https://huggingface.co/abeja-inc/XXX",
+    "abeja/gpt-neox-japanese-6_7b": "https://huggingface.co/abeja-inc/XXX",
+    "abeja/gpt-neox-japanese-13b": "https://huggingface.co/abeja-inc/XXX",
 }
 
 
@@ -32,12 +33,10 @@ class GPTNeoXJapaneseConfig(PretrainedConfig):
     GPTNeoX model according to the specified arguments, defining the model architecture. Instantiating a configuration
     with the defaults will yield a similar configuration to that of the GPTNeoXJapanese
     [ABEJA/gpt-neox-japanese-2.7b](https://huggingface.co/abeja-inc/gpt-neox-japanese-2_7b) architecture.
-    You can also use [ABEJA/gpt-neox-japanese-6.7b](https://huggingface.co/abeja-inc/gpt-neox-japanese-6_7b).
 
     Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
     documentation from [`PretrainedConfig`] for more information.
     Default configs is set as 2.7B model
-
 
     Args:
         vocab_size (`int`, *optional*, defaults to 32000):
@@ -52,15 +51,13 @@ class GPTNeoXJapaneseConfig(PretrainedConfig):
         intermediate_multiple_size (`int`, *optional*, defaults to 4):
             Dimension of the "intermediate" layer in the Transformer encoder is calculated by hidden_size * intermediate_multiple_size.
         hidden_act (`str` or `function`, *optional*, defaults to `"gelu"`):
-            The non-linear activation function (function or string) in the encoder and pooler. If string, `"gelu"`,
-            `"relu"`, `"selu"` and `"gelu_new"` are supported.
+            The non-linear activation function (function or string) in the encoder and pooler.
         rotary_pct (`float`, *optional*, defaults to 1.00):
             percentage of hidden dimensions to allocate to rotary embeddings
         rotary_emb_base (`int`, *optional*, defaults to 10000)
             base for computing rotary embeddings frequency
         max_position_embeddings (`int`, *optional*, defaults to 2048):
-            The maximum sequence length that this model might ever be used with. Typically set this to something large
-            just in case (e.g., 512 or 1024 or 2048).
+            The maximum sequence length that this model might ever be used with.
         initializer_range (`float`, *optional*, defaults to 0.02):
             The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
         layer_norm_eps (`float`, *optional*, defaults to 1e-5):
@@ -77,10 +74,10 @@ class GPTNeoXJapaneseConfig(PretrainedConfig):
         Example:
 
     ```python
-    >>> from transformers import GPTNeoXJapanseModel, GPTNeoXJapaneseConfig
+    >>> from transformers import GPTNeoXJapaneseModel, GPTNeoXJapaneseConfig
 
     >>> # Initializing a GPTNeoXJapanese gpt-neox-japanese-2.7b style configuration
-    >>> configuration = GPTNeoXJapanseConfig()
+    >>> configuration = GPTNeoXJapaneseConfig()
 
     >>> # Initializing a model from the gpt-neox-japanese-2.7b style configuration
     >>> model = GPTNeoXJapaneseModel(configuration)
@@ -104,13 +101,14 @@ class GPTNeoXJapaneseConfig(PretrainedConfig):
         initializer_range=0.02,
         layer_norm_eps=1e-5,
         use_cache=True,
+        bos_token_id=31996,
         eos_token_id=31999,
         weight_tying=True,
         attention_dropout=0.1,
         hidden_dropout=0.0,
         **kwargs
     ):
-        super().__init__(eos_token_id=eos_token_id, **kwargs)
+        super().__init__(bos_token_id=bos_token_id, eos_token_id=eos_token_id, **kwargs)
         self.vocab_size = vocab_size
         self.max_position_embeddings = max_position_embeddings
         self.hidden_size = hidden_size
